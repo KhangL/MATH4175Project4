@@ -12,15 +12,18 @@ static const float propRatios[] = {(float)1/4, (float)1/8, (float)1/8};
 int main()
 {
     unsigned char counter[] = {0, 0, 0, 0, 0, 0, 0, 0}; // Counter for each key
-    float C = 0; // Weighted average count 
+    float C[] = {0, 0, 0, 0, 0, 0, 0, 0}; // Weighted average count 
+
     // Iterate over the three trails
     for (unsigned char i = 0x00; i < 0x03; i++)
     {
         printf("Trail: %u\n", i+1);
 
-        // Iterate through every key (0b000 - 0b111)
+        // Iterate through each 4-tuple
         for (unsigned char j = 0; j < 0x03; j++) {
             printf("\n\tY = 0x%02X, Y* = 0x%02X\n", ciphertext[j], y_star[j]);
+
+            // Iterate through every key (0b000 - 0b111)
             for (unsigned char k = 0x00; k < 0x08; k++)
             {
                 printf("\t\tK = %d, ", k);
@@ -45,13 +48,21 @@ int main()
         }
         printf("\n         \t");
         for (unsigned char j = 0; j < 0x08; j++) {
-            printf("%2u  ", counter[i]);
+            printf("%2u  ", counter[j]);
+            C[j] += propRatios[i]*counter[j];
         }
         printf("\n\n");
-
-        C += propRatios[i] * counter[i]; // TODO: Fix calculation for weighted average
     }
 
-    printf("C = %.04f", C);
+    // Prints Counter table
+    printf("\nC   ");
+    for (unsigned char j = 0; j < 0x08; j++) {
+        printf("0x%1X       ", j);
+    }
+    printf("\n   ");
+    for (unsigned char j = 0; j < 0x08; j++) {
+        printf("%.04f    ", C[j]);
+    }
+    printf("\n\n");
     return 0;
 }
